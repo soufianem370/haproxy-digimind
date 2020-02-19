@@ -1,0 +1,18 @@
+# Backend ACL 
+    acl is_app1 path_beg /api
+    acl is_app2 path_beg /digi
+    
+
+# Backend rules
+    use_backend app1 if is_app1
+    use_backend app2 if is_app2
+# DEFAULT
+    default_backend app1
+#---------------------------------------------------------------------
+# round robin balancing between the various backends
+#---------------------------------------------------------------------
+backend app1
+    balance     roundrobin
+    server  servapp1 172.23.0.11:80 check
+backend app2    
+    server  servapp2 172.23.0.12:80 check
