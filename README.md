@@ -1,4 +1,118 @@
 # haproxy
+```
+
+
+                                servapp1
+                              +-----------------+
+                              |  172.23.0.11    |		
+        LB1                   +-----------------+     
+    +-------------------+                             
+    | 172.23.0.9        |       servapp2                   
+    +-------------------+     +-----------------+    
+                              |  172.23.0.12    |     
+                              +-----------------+
+
+```
+
+## fichier de configuration Haproxy
+-> HAPROXY configuration : Global et Default <-
+=========
+
+```
+global
+    # global settings here
+
+defaults
+    # defaults here
+
+frontend
+    # a frontend that accepts requests from clients
+
+backend
+    # servers that fulfill the requests
+```
+
+<br>
+* section global : s'applique à haproxy lui-même
+
+<br>
+```
+global
+		log /dev/log local5 debug
+		chroot /var/lib/haproxy
+		stats socket /run/haproxy/admin.sock mode 660 level admin
+		stats timeout 30s
+		user haproxy
+		group haproxy
+		daemon
+```
+
+<br>
+* log : attention log binaire format syslog
+
+* chroot : manière de sécuriser haproxy en chrootant dans /var/lib/haproxy
+
+* stats : activation de la socket (interaction hatop
+
+* timeout : sur la socket stat
+
+* user/group : qui lance le process haproxy
+
+* daemon : faire tourner en background
+
+* éventuellement le ssl
+
+------------------------------------------------------------------------------------
+
+
+
+-> HAPROXY configuration : Global et Default <-
+
+
+<br>
+* section default : s'applique si aucune autre configuration n'est précisée (sur front/back)
+
+<br>
+```
+defaults
+		log global
+		mode http
+		option httplog
+		option dontlognull
+		timeout connect 5000
+		timeout client 50000
+		timeout server 50000
+		errorfile 400 /etc/haproxy/errors/400.http
+```
+
+<br>
+* log global : log tout vers syslog
+
+* mode http : type de LB (TCP ou HTTP)
+
+* option : log des requêtes http
+
+* dontlognull : ne log pas les requêtes null
+
+* timeout connect : connexion au serveur cible
+
+* timeout client : connexion cliente (browser)
+
+* timeout server : la réposne du serveur cible
+
+
+-> Listen <-
+
+* autre format réunissant frontend/backend
+
+```
+listen monapp
+		bind: *.80
+		server server1 127.0.0.1 5000
+```
+
+
+
 ## 1)exemple de configuration avec plusieurs backend et acl:
 ```bash
 # Global settings
