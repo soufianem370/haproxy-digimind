@@ -110,7 +110,15 @@ listen monapp
 		bind: *.80
 		server server1 127.0.0.1 5000
 ```
+## exemple de configuration simple
+frontend myapp_front
+    bind *:80
+    mode http
+    default_backend pool_load 
 
+backend pool_load
+    server serv1 172.17.0.3:80
+    server serv1 172.17.0.3:80
 
 
 ## 1)exemple de configuration avec plusieurs backend et acl:
