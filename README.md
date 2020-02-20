@@ -110,7 +110,7 @@ listen monapp
 		bind: *.80
 		server server1 127.0.0.1 5000
 ```
-## exemple de configuration simple
+## 1)exemple de configuration simple
 frontend myapp_front
     bind *:80
     mode http
@@ -121,26 +121,13 @@ backend pool_load
     server serv1 172.17.0.3:80
 
 
-## 1)exemple de configuration avec plusieurs backend et acl:
+## 2)exemple de configuration avec plusieurs backend et acl:
 ```bash
+ 
 # Global settings
 #---------------------------------------------------------------------
 global
-    # to have these messages end up in /var/log/haproxy.log you will
-    # need to:
-    #
-    # 1) configure syslog to accept network log events.  This is done
-    #    by adding the '-r' option to the SYSLOGD_OPTIONS in
-    #    /etc/sysconfig/syslog
-    #
-    # 2) configure local2 events to go to the /var/log/haproxy.log
-    #   file. A line like the following can be added to
-    #   /etc/sysconfig/syslog
-    #
-    #    local2.*                       /var/log/haproxy.log
-    #
     log         127.0.0.1 local2
-
     chroot      /var/lib/haproxy
     pidfile     /var/run/haproxy.pid
     maxconn     4000
@@ -186,32 +173,25 @@ frontend http_proxy
     capture request header X-Forwarded-For len 15
 #---------------------------------------------------------------------
  # Backend ACL 
-    acl is_app1 path_beg /app1
-    acl is_app2 path_beg /app2
-    acl is_app3 path_beg /app3
+    acl is_app1 path_beg -i /apiproxy
+    acl is_app2 path_beg -i /digipoint
 
 # Backend rules
     use_backend app1 if is_app1
     use_backend app2 if is_app2
-    use_backend app3 if is_app3
 # DEFAULT
     default_backend app1
 #---------------------------------------------------------------------
 # round robin balancing between the various backends
 #---------------------------------------------------------------------
 backend app1
-    balance     roundrobin
-    server  kmaster 172.42.42.100:30891 check
+    server  servapp1 172.23.0.11:80 check
 backend app2    
-    server  kmaster 172.42.42.100:31953 check
-backend app3    
-    server  kmaster 172.42.42.100:32558 check
-```
- 
+    server  servapp2 172.23.0.12:80 check
 
+```
 
 ## 3)fetch method (Matching d'url (path) ou routing)
-
 
 -> HAPROXY : fetch method <-
 =========
@@ -298,7 +278,7 @@ acl is_match path_reg -i .(css|js)$
 ```
 acl is_match path_string -i page
 ```
-# haproxy avec keepalived
+## 4)haproxy avec keepalived
 * haproxy : load-balancer = SPOF
 
 
@@ -321,7 +301,7 @@ acl is_match path_string -i page
                             +-----------------+
 
 ```
-## fichier de configuration pour le premier LB1
+### fichier de configuration pour le premier LB1
 
 ```
 vrrp_script reload_haproxy {
@@ -360,7 +340,7 @@ vrrp_instance VI_1 {
 
 ```
 
-## fichier de configuration pour le deuxième LB2
+### fichier de configuration pour le deuxième LB2
 
 ```
 vrrp_script reload_haproxy {
@@ -397,7 +377,7 @@ vrrp_instance VI_1 {
 
 }
 ```
-## Sticky table : maintien de session
+## 5)Sticky table : maintien de session
 -> HAPROXY : Sticky Table <-
 =========
 
@@ -461,7 +441,7 @@ explication:
 stick-table type ip size 1m expire 30m : type du table sticky sera basé sur l'ip source et la taille maximale de la table est 1m (il ya un système de nettoyage qui réinitialise la table), la durée d'expiration de la session est de 30 minutes.
 # la gestion des certificats avec haproxy 
 
--> HAPROXY : SSL ou plutôt TLS <-
+## 6)HAPROXY : SSL ou plutôt TLS <-
 =========
 
 <br>
@@ -500,7 +480,7 @@ backend pool_load
 ```
 -------------------------------------------------------------------
 
--> HAPROXY : Terminaison <-
+### -> HAPROXY : Terminaison <-
 
 
 * génération du certificat auto-signé
@@ -536,7 +516,7 @@ Rq 2 : nosslv3 pour pas de ssl3 (idem no-tlsv10)
 -----------------------------------------------------------------
 
 
-## -> HAPROXY : Passthrough <-
+### -> HAPROXY : Passthrough <-
 
 
 
@@ -588,7 +568,7 @@ backend pool_load
 ----------------------------------------------------------------------
 
 
-## -> HAPROXY : réencryption <-
+### -> HAPROXY : réencryption <-
 
 * client > certificat haproxy > serveur > certificat nginx
 
